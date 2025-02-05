@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Adventure Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="gameOutput"></div>
+    <div id="controls">
+        <button id="attackBtn">Атака</button>
+        <button id="exploreBtn">Исследовать</button>
+        <button id="takeBtn">Взять</button>
+        <select id="itemsSelect" style="display: none;"></select>
+        <button id="useBtn">Использовать</button>
+        <select id="inventorySelect"></select>
+        <button id="moveBtn">Перейти</button>
+        <select id="locationsSelect">
+            <option value="лес">Лес</option>
+            <option value="деревня">Деревня</option>
+        </select>
+        <button id="talkBtn" style="display: none;">Говорить</button>
+    </div>
+    <div id="chat" style="display: none;">
+        <div id="chatOutput"></div>
+        <input type="text" id="chatInput" placeholder="Введите сообщение...">
+        <button id="sendChatBtn">Отправить</button>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
