@@ -12,98 +12,31 @@ const chat = document.getElementById('chat');
 const chatOutput = document.getElementById('chatOutput');
 const chatInput = document.getElementById('chatInput');
 const sendChatBtn = document.getElementById('sendChatBtn');
-const exitChatBtn = document.createElement('button'); // Create exit chat button
-
-exitChatBtn.id = 'exitChatBtn';
-exitChatBtn.innerText = 'Выйти из чата';
-chat.appendChild(exitChatBtn); // Add exit chat button to chat container
+const exitChatBtn = document.getElementById('exitChatBtn');
 
 const player = {
-    name: 'Игрок',
+    name: 'Злодей',
     health: 100,
     inventory: [],
-    location: 'лес',
+    location: 'крепость',
     visibleItems: [],
     quests: []
 };
 
-const locations = {
-    лес: {
-        description: 'Вы находитесь в темном лесу. Перед вами враг.',
-        detailedDescription: 'Темные ветви деревьев переплетаются над вами, создавая зловещие тени. Повсюду слышны звуки лесных существ, и настроение становится напряженным.',
-        items: ['медицинская_аптечка'],
-        enemy: {
-            name: 'Враг',
-            health: 50,
-            attackDescription: 'Враг бросается на вас с диким криком, пытаясь нанести удар.'
-        }
-    },
-    деревня: {
-        description: 'Вы прибыли в тихую деревню. Здесь можно отдохнуть и пополнить запасы.',
-        detailedDescription: 'Тихая деревня окружена зелеными полями и цветущими садами. Дома из камня и дерева придают этому месту уют и спокойствие.',
-        items: ['яблоко'],
-        enemy: null,
-        residents: [
-            { name: 'Житель1', quests: [{ description: 'Принесите мне яблоко из леса.', reward: 'зелье здоровья', completed: false }], 
-              dialogues: [
-                  { input: 'привет', response: 'Привет! Как я могу вам помочь?' },
-                  { input: 'как дела', response: 'Все хорошо, спасибо. А у вас?' },
-                  { input: 'что делаешь', response: 'Просто отдыхаю. Наслаждаюсь хорошей погодой.' },
-                  { input: 'что нового', response: 'В деревне все спокойно. Ничего особенного не происходит.' },
-                  { input: 'пока', response: 'До свидания! Будьте осторожны в своих приключениях.' },
-                  { input: 'как тебя зовут', response: 'Меня зовут Житель1. А вас?' },
-                  { input: 'расскажи о себе', response: 'Я живу в этой деревне всю свою жизнь. Здесь очень тихо и спокойно.' },
-                  { input: 'есть ли у тебя семья', response: 'Да, у меня есть семья. Мы живем вместе в доме на окраине деревни.' },
-                  { input: 'как погода', response: 'Сегодня отличная погода! Солнце светит и небо ясное.' },
-                  { input: 'что ты думаешь о лесу', response: 'Лес может быть опасным местом, но там также можно найти много полезных вещей.' },
-                  { input: 'что ты знаешь о врагах', response: 'Враги могут быть очень опасными. Будьте осторожны и всегда будьте наготове.' },
-                  { input: 'почему ты здесь', response: 'Я живу здесь и помогаю поддерживать порядок в деревне.' },
-                  { input: 'нравится ли тебе здесь', response: 'Да, мне здесь очень нравится. Это спокойное и красивое место.' },
-                  { input: 'что ты думаешь обо мне', response: 'Вы кажетесь хорошим человеком. Надеюсь, у вас все получится.' },
-                  { input: 'ты мне не нравишься', response: 'Извините, если я вас чем-то обидел. Я постараюсь быть лучше.' },
-                  { input: 'ты дурак', response: 'Извините, если я вас чем-то огорчил. Пожалуйста, не обижайтесь.' },
-                  { input: 'ты бесполезен', response: 'Извините, если я не смог вам помочь. Постараюсь исправиться.' },
-                  { input: 'помоги мне', response: 'Конечно! Чем могу помочь?' },
-                  { input: 'что ты можешь сделать', response: 'Я могу дать вам информацию о деревне и лесу, а также помочь с квестами.' },
-                  { input: 'ты можешь мне доверять', response: 'Я всегда стараюсь быть честным и надежным.' },
-                  { input: 'что ты знаешь о деревне', response: 'Деревня - это место, где можно отдохнуть и пополнить запасы. Здесь живут добрые люди.' },
-                  // Добавьте больше диалогов по вашему усмотрению
-              ] 
-            },
-            { name: 'Житель2', quests: [], 
-              dialogues: [
-                  { input: 'привет', response: 'Здравствуйте! Рад вас видеть.' },
-                  { input: 'как дела', response: 'Неплохо, спасибо. Чем могу помочь?' },
-                  { input: 'что делаешь', response: 'Работаю над своим садом. Хотите посмотреть?' },
-                  { input: 'что нового', response: 'Слышал, что в лесу появились новые создания. Будьте осторожны.' },
-                  { input: 'пока', response: 'До новых встреч! Удачи вам.' },
-                  { input: 'как тебя зовут', response: 'Меня зовут Житель2. Приятно познакомиться!' },
-                  { input: 'расскажи о себе', response: 'Я люблю заниматься садоводством и помогать соседям.' },
-                  { input: 'есть ли у тебя семья', response: 'Да, у меня есть большая семья. Мы все живем в этой деревне.' },
-                  { input: 'как погода', response: 'Сегодня прекрасный день для работы в саду.' },
-                  { input: 'что ты думаешь о лесу', response: 'Лес полон тайн и опасностей, но там можно найти много интересного.' },
-                  { input: 'что ты знаешь о врагах', response: 'Враги могут быть жестокими и опасными. Будьте начеку.' },
-                  { input: 'почему ты здесь', response: 'Я живу здесь и люблю нашу деревню.' },
-                  { input: 'нравится ли тебе здесь', response: 'Да, здесь очень уютно и спокойно.' },
-                  { input: 'что ты думаешь обо мне', response: 'Вы кажетесь хорошим человеком. Надеюсь, у вас все получится.' },
-                  { input: 'ты мне не нравишься', response: 'Извините, если я вас чем-то обидел. Пожалуйста, простите меня.' },
-                  { input: 'ты дурак', response: 'Извините, если я вас чем-то огорчил. Я не хотел вас обидеть.' },
-                  { input: 'ты бесполезен', response: 'Извините, если я не смог вам помочь. Постараюсь исправиться.' },
-                  { input: 'помоги мне', response: 'Конечно! Чем могу помочь?' },
-                  { input: 'что ты можешь сделать', response: 'Я могу рассказать вам о садоводстве и помочь с квестами.' },
-                  { input: 'ты можешь мне доверять', response: 'Я всегда стараюсь быть честным и надежным.' },
-                  { input: 'что ты знаешь о деревне', response: 'Деревня - это место, где можно отдохнуть и пополнить запасы. Здесь живут добрые люди.' },
-                  // Добавьте больше диалогов по вашему усмотрению
-              ] 
-            }
-        ]
-    }
-};
-
 function startGame() {
     gameOutput.innerHTML = "Добро пожаловать в текстовую RPG!<br>";
+    initializeLocationsSelect();
     showLocation();
     updateStats();
+}
+
+function initializeLocationsSelect() {
+    for (const location in locations) {
+        const option = document.createElement('option');
+        option.value = location;
+        option.text = location.charAt(0).toUpperCase() + location.slice(1);
+        locationsSelect.appendChild(option);
+    }
 }
 
 function updateStats() {
@@ -120,6 +53,7 @@ function updateStats() {
     if (location.enemy) {
         gameOutput.innerHTML += `<br><strong>${location.enemy.name}</strong><br>Здоровье: ${location.enemy.health}<br><br>`;
     }
+    updateItemsSelect();
     updateInventorySelect();
     scrollToBottom();
 }
@@ -137,6 +71,10 @@ function processCommand(command) {
         moveTo(locationsSelect.value);
     } else if (command === 'говорить') {
         startChat();
+    } else if (command === 'помощь') {
+        showHelp();
+    } else if (command === 'статус') {
+        updateStats();
     } else {
         gameOutput.innerHTML += 'Неизвестная команда. Введите "помощь" для списка команд.<br>';
     }
@@ -146,17 +84,21 @@ function processCommand(command) {
 function attackEnemy() {
     const location = locations[player.location];
     if (location.enemy) {
+        if (player.health <= 0) {
+            gameOutput.innerHTML += 'Вы не можете атаковать, у вас нет здоровья.<br>';
+            return;
+        }
         const damage = Math.floor(Math.random() * 20) + 1;
         location.enemy.health -= damage;
-        gameOutput.innerHTML += `Вы атакуете врага. ${location.enemy.attackDescription} Вы наносите ${damage} урона.<br>`;
+        gameOutput.innerHTML += `Вы атаковали врага и нанесли ${damage} урона.<br>`;
         if (location.enemy.health <= 0) {
-            gameOutput.innerHTML += 'Вы победили врага! Враг падает на землю, и вы чувствуете прилив адреналина.<br>';
+            gameOutput.innerHTML += 'Вы победили врага!<br>';
             location.enemy = null;
         } else {
             enemyAttack();
         }
     } else {
-        gameOutput.innerHTML += 'Здесь нет врагов.<br>';
+        gameOutput.innerHTML += 'Некого атаковать.<br>';
     }
 }
 
@@ -165,15 +107,15 @@ function enemyAttack() {
     if (location.enemy) {
         const damage = Math.floor(Math.random() * 15) + 1;
         player.health -= damage;
-        gameOutput.innerHTML += `Враг атакует вас и наносит ${damage} урона. ${location.enemy.attackDescription}<br>`;
+        gameOutput.innerHTML += `Враг атаковал вас и нанес ${damage} урона.<br>`;
         if (player.health <= 0) {
-            gameOutput.innerHTML += 'Вы проиграли. Игра окончена. Вы падаете на землю, чувствуя, как жизнь покидает ваше тело.<br>';
+            gameOutput.innerHTML += 'Вы проиграли. Игра окончена.<br>';
         }
     }
 }
 
 function showHelp() {
-    gameOutput.innerHTML += 'Доступные команды: атака, помощь, исследовать, взять, использовать, перейти, говорить<br>';
+    gameOutput.innerHTML += 'Доступные команды: атака, помощь, исследовать, взять, использовать, перейти, говорить, статус<br>';
 }
 
 function explore() {
@@ -224,8 +166,8 @@ function moveTo(location) {
     if (locations[location]) {
         player.location = location;
         player.visibleItems = [];
-        gameOutput.innerHTML += `Вы переходите в ${location}.<br>${locations[location].detailedDescription}<br>`;
-        if (location === 'деревня') {
+        gameOutput.innerHTML += `Вы переходите в ${location}.<br>`;
+        if (locations[location].enemy || locations[location].residents) {
             talkBtn.style.display = 'inline';
         } else {
             talkBtn.style.display = 'none';
@@ -267,12 +209,21 @@ function scrollToBottom() {
     gameOutput.scrollTop = gameOutput.scrollHeight;
 }
 
+function scrollToChatBottom() {
+    chatOutput.scrollTop = chatOutput.scrollHeight;
+}
+
 function startChat() {
     chat.style.display = 'flex';
     chatOutput.innerHTML = '';
-    locations[player.location].residents.forEach(resident => {
-        chatOutput.innerHTML += `<strong>${resident.name}:</strong> Привет, как дела?<br>`;
-    });
+    const location = locations[player.location];
+    if (location.enemy) {
+        chatOutput.innerHTML += `<strong>${location.enemy.name}:</strong> ${location.enemy.dialogues[0]}<br>`;
+    } else {
+        location.residents.forEach(resident => {
+            chatOutput.innerHTML += `<strong>${resident.name}:</strong> Привет! Как я могу вам помочь?<br>`;
+        });
+    }
     scrollToChatBottom();
 }
 
@@ -286,18 +237,51 @@ function sendMessage() {
     }
 }
 
+function exitChat() {
+    chat.style.display = 'none';
+    gameOutput.innerHTML += `Вы вышли из чата.<br>`;
+    scrollToBottom();
+}
+
 function respondToMessage(message) {
-    const resident = locations[player.location].residents[0]; // Выбираем первого жителя для простоты
+    if (!message.trim()) return;
+
+    const location = locations[player.location];
     let response = '';
 
-    const dialogue = resident.dialogues.find(d => message.toLowerCase().includes(d.input));
-    if (dialogue) {
-        response = dialogue.response;
+    if (location.enemy) {
+        if (message.toLowerCase().includes('сдаюсь')) {
+            response = getRandomResponse('сдаться');
+            location.enemy = null;
+            gameOutput.innerHTML += 'Некого атаковать. Вы сдались, и враг вас отпустил. Вы сбежали.<br>';
+        } else {
+            response = getRandomResponse('default');
+        }
+    } else if (location.residents && location.residents.length > 0) {
+        const resident = location.residents[0];
+        if (message.toLowerCase().includes('привет')) {
+            response = getRandomResponse('привет');
+        } else if (message.toLowerCase().includes('квест')) {
+            response = getRandomResponse('квест');
+            const quest = resident.quests[0];
+            if (quest && !quest.completed) {
+                player.quests.push(quest);
+            }
+        } else if (message.toLowerCase().includes('спасибо')) {
+            response = getRandomResponse('спасибо');
+        } else {
+            response = getRandomResponse('default');
+        }
     } else {
-        response = 'Извините, я не понимаю вас.';
+        response = getRandomResponse('default');
     }
 
-    chatOutput.innerHTML += `<strong>${resident.name}:</strong> ${response}<br>`;
+    chatOutput.innerHTML += `<strong>${location.enemy ? location.enemy.name : location.residents[0].name}:</strong> ${response}<br>`;
+}
+
+function getRandomResponse(category) {
+    const categoryResponses = responses[category] || responses.default;
+    return categoryResponses[Math.floor(Math.random() * categoryResponses.length)];
 }
 
 function checkQuests() {
@@ -308,11 +292,6 @@ function checkQuests() {
             gameOutput.innerHTML += `Вы завершили квест: ${quest.description} и получили награду: ${quest.reward}.<br>`;
         }
     });
-}
-
-function exitChat() {
-    chat.style.display = 'none';
-    gameOutput.innerHTML += `Вы вышли из чата.<br>`;
 }
 
 attackBtn.addEventListener('click', () => {
@@ -340,8 +319,7 @@ talkBtn.addEventListener('click', () => {
 });
 
 sendChatBtn.addEventListener('click', sendMessage);
-
-exitChatBtn.addEventListener('click', exitChat); // Add event listener for exit chat button
+exitChatBtn.addEventListener('click', exitChat);
 
 chatInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {

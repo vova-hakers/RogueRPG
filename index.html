@@ -16,17 +16,17 @@
         <button id="useBtn">Использовать</button>
         <select id="inventorySelect"></select>
         <button id="moveBtn">Перейти</button>
-        <select id="locationsSelect">
-            <option value="лес">Лес</option>
-            <option value="деревня">Деревня</option>
-        </select>
-        <button id="talkBtn" style="display: none;">Говорить</button>
+        <select id="locationsSelect"></select>
+        <button id="talkBtn">Говорить</button>
     </div>
     <div id="chat" style="display: none;">
         <div id="chatOutput"></div>
         <input type="text" id="chatInput" placeholder="Введите сообщение...">
         <button id="sendChatBtn">Отправить</button>
+        <button id="exitChatBtn">Выйти из чата</button>
     </div>
+    <script src="locations.js"></script>
+    <script src="dialogues.js"></script>
     <script src="game.js"></script>
 </body>
 </html>
