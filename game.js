@@ -13,18 +13,28 @@ const chatOutput = document.getElementById('chatOutput');
 const chatInput = document.getElementById('chatInput');
 const sendChatBtn = document.getElementById('sendChatBtn');
 const exitChatBtn = document.getElementById('exitChatBtn');
+const healthBar = document.getElementById('healthBar');
+const staminaBar = document.getElementById('staminaBar');
+const inventoryOutput = document.getElementById('inventoryOutput');
+const toggleQuestsBtn = document.getElementById('toggleQuestsBtn');
 
 const player = {
-    name: 'Злодей',
+    name: 'Игрок',
     health: 100,
+    stamina: 100,
     inventory: [],
-    location: 'крепость',
-    visibleItems: [],
-    quests: []
+    location: 'лес',
+    visibleItems: ['ржавый меч', 'погнутый шлем'],
+    quests: [],
+    equippedWeapon: null,
+    equippedArmor: null,
+    skills: 0
 };
 
+let showingCompletedQuests = false;
+
 function startGame() {
-    gameOutput.innerHTML = "Добро пожаловать в текстовую RPG!<br>";
+    gameOutput.innerHTML = "Вы просыпаетесь в лесу без вещей. Возле вас лежит ржавый меч и погнутый шлем.<br>";
     initializeLocationsSelect();
     showLocation();
     updateStats();
@@ -40,13 +50,20 @@ function initializeLocationsSelect() {
 }
 
 function updateStats() {
-    gameOutput.innerHTML += `<br><strong>${player.name}</strong><br>Здоровье: ${player.health}<br>Инвентарь: ${player.inventory.join(', ') || 'пусто'}<br>`;
+    gameOutput.innerHTML += `<br><strong>${player.name}</strong><br>`;
 
+    const questOutput = document.getElementById('questOutput');
+    questOutput.innerHTML = `<strong>Квесты:</strong><button id="toggleQuestsBtn">${showingCompletedQuests ? 'Квесты' : 'Выполнено'}</button><br>`;
     if (player.quests.length > 0) {
-        gameOutput.innerHTML += `<br><strong>Квесты:</strong><br>`;
         player.quests.forEach(quest => {
-            gameOutput.innerHTML += `${quest.description} - ${quest.completed ? 'Выполнен' : 'Не выполнен'}<br>`;
+            if (!showingCompletedQuests && !quest.completed) {
+                questOutput.innerHTML += `${quest.description} - ${quest.completed ? 'Выполнен' : 'Не выполнен'}<br>`;
+            } else if (showingCompletedQuests && quest.completed) {
+                questOutput.innerHTML += `${quest.description} - Выполнен<br>`;
+            }
         });
+    } else {
+        questOutput.innerHTML += showingCompletedQuests ? 'Нет выполненных квестов.<br>' : 'Нет активных квестов.<br>';
     }
 
     const location = locations[player.location];
@@ -55,7 +72,15 @@ function updateStats() {
     }
     updateItemsSelect();
     updateInventorySelect();
+    updateSimulation();
     scrollToBottom();
+
+    document.getElementById('toggleQuestsBtn').addEventListener('click', toggleQuests);
+}
+
+function toggleQuests() {
+    showingCompletedQuests = !showingCompletedQuests;
+    updateStats();
 }
 
 function processCommand(command) {
@@ -81,6 +106,19 @@ function processCommand(command) {
     updateStats();
 }
 
+function updateSimulation() {
+    healthBar.innerHTML = `Здоровье: ${player.health}`;
+    staminaBar.innerHTML = `Выносливость: ${player.stamina}`;
+
+    const healthPercentage = (player.health / 100) * 100;
+    const staminaPercentage = (player.stamina / 100) * 100;
+
+    healthBar.style.setProperty('--health-percentage', `${healthPercentage}%`);
+    staminaBar.style.setProperty('--stamina-percentage', `${staminaPercentage}%`);
+
+    inventoryOutput.innerHTML = `Инвентарь: ${player.inventory.join(', ') || 'пусто'}`;
+}
+
 function attackEnemy() {
     const location = locations[player.location];
     if (location.enemy) {
@@ -88,7 +126,10 @@ function attackEnemy() {
             gameOutput.innerHTML += 'Вы не можете атаковать, у вас нет здоровья.<br>';
             return;
         }
-        const damage = Math.floor(Math.random() * 20) + 1;
+        let damage = Math.floor(Math.random() * 10) + 1; // Базовый урон без оружия
+        if (player.equippedWeapon === 'ржавый меч') {
+            damage += 5; // Увеличение урона при использовании меча
+        }
         location.enemy.health -= damage;
         gameOutput.innerHTML += `Вы атаковали врага и нанесли ${damage} урона.<br>`;
         if (location.enemy.health <= 0) {
@@ -105,7 +146,10 @@ function attackEnemy() {
 function enemyAttack() {
     const location = locations[player.location];
     if (location.enemy) {
-        const damage = Math.floor(Math.random() * 15) + 1;
+        let damage = Math.floor(Math.random() * 15) + 1;
+        if (player.equippedArmor === 'погнутый шлем') {
+            damage -= 3; // Уменьшение урона при использовании шлема
+        }
         player.health -= damage;
         gameOutput.innerHTML += `Враг атаковал вас и нанес ${damage} урона.<br>`;
         if (player.health <= 0) {
@@ -151,6 +195,12 @@ function useItem(item) {
                 player.health += 20;
                 gameOutput.innerHTML += `Вы использовали ${item} и восстановили 20 здоровья.<br>`;
                 player.inventory.splice(itemIndex, 1);
+            } else if (item === 'ржавый меч') {
+                player.equippedWeapon = item;
+                gameOutput.innerHTML += `Вы взяли в руку ${item}. Теперь ваш урон увеличен.<br>`;
+            } else if (item === 'погнутый шлем') {
+                player.equippedArmor = item;
+                gameOutput.innerHTML += `Вы надели ${item}. Теперь ваш урон уменьшен.<br>`;
             } else {
                 gameOutput.innerHTML += `Этот предмет нельзя использовать сейчас.<br>`;
             }
@@ -172,9 +222,25 @@ function moveTo(location) {
         } else {
             talkBtn.style.display = 'none';
         }
+        checkEnemySpawn(location);
         showLocation();
     } else {
         gameOutput.innerHTML += `Локация ${location} не существует.<br>`;
+    }
+}
+
+function checkEnemySpawn(location) {
+    const loc = locations[location];
+    if (location === 'лес' && Math.random() < loc.spawnChance) {
+        const enemyCount = Math.floor(Math.random() * (17 - 10 + 1)) + 10;
+        loc.enemy = {
+            name: 'Толпа врагов',
+            health: 50 * enemyCount,
+            dialogues: [
+                "Ты не пройдешь!"
+            ]
+        };
+        gameOutput.innerHTML += `Вы наткнулись на толпу врагов!<br>`;
     }
 }
 
